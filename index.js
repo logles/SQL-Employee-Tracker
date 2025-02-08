@@ -14,6 +14,7 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
+// console.log(pool);
 // await connectToDb();
 
 function employeeManager() {
@@ -84,13 +85,36 @@ function employeeManager() {
 employeeManager();
 
 //TO DO: Show roles table
+// loading department ID instead of department name
 function viewAllRoles() {
   pool.query("SELECT * FROM role").then((res) => {
+    console.table(res.rows);
     employeeManager();
   });
 }
-//TO DO Show employees table
-function viewAllEmployees() {}
+
+function viewAllEmployees() {
+  pool
+    .query(
+      `
+    SELECT employee.id, 
+           employee.first_name AS employee_first_name, 
+           employee.last_name AS employee_last_name, 
+           role.title AS role_title, 
+           role.salary AS role_salary,
+           department.department_name AS department_name,
+           CONCAT(manager.first_name, ' ', manager.last_name) AS manager_full_name
+    FROM employee
+    LEFT JOIN role ON employee.role_id = role.id
+    LEFT JOIN department ON role.department_id = department.id
+    LEFT JOIN employee manager ON employee.manager_id = manager.id
+  `
+    )
+    .then((res) => {
+      console.table(res.rows); // Display employees with their roles, departments, and managers
+      employeeManager(); // Call your next function after the table
+    });
+}
 
 //TO DO Show dempartments table
 function viewAllDepartments() {
@@ -104,7 +128,7 @@ function viewAllDepartments() {
 function addRole() {
   pool.query("SELECT * FROM department").then((res) => {
     const departments = res.rows.map((dept) => ({
-      name: dept.name,
+      name: dept.department_name,
       value: dept.id,
     }));
 
@@ -124,6 +148,7 @@ function addRole() {
           type: "list",
           name: "roleDepartment",
           message: "Which department does this role belong to?",
+
           choices: departments,
         },
       ])
@@ -152,7 +177,7 @@ function addDepartment() {
     .then((answers) => {
       pool
         .query(
-          `INSERT INTO department (name) VALUES ('${answers.departmentName}')`
+          `INSERT INTO department (department_name) VALUES ('${answers.departmentName}')`
         )
         .then(() => {
           employeeManager();

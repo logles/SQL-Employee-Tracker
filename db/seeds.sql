@@ -1,5 +1,5 @@
 -- Seeds for 'department' table
-INSERT INTO department (name) VALUES
+INSERT INTO department (department_name) VALUES
 ('Sales'),
 ('Engineering'),
 ('Marketing'),
@@ -17,4 +17,4 @@ INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES
 ('John', 'Doe', 1, NULL), 
 ('Jane', 'Smith', 2, 1),
 ('Alice', 'Johnson', 3, 1), 
-('Bob', 'Brown', 4, 2); 
+('Bob', 'Brown', 4, 2);
